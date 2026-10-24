@@ -35,7 +35,7 @@ jobs:
     needs: test-and-build
     runs-on: ubuntu-latest
     environment:
-      name: pypi
+      name: pypi_package
       url: https://pypi.org/p/pitbull
     permissions:
       id-token: write
