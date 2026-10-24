@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pitbull"
+version = "0.1.0"
+description = "JavaScript-free HTML to Python bridge backed by Chromium"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "deltathedumb" }]
+keywords = ["chromium", "html", "javascript-free", "gui"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+]
+dependencies = ["selenium>=4.20"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.urls]
+Homepage = "https://github.com/deltathedumb/pitbull"
+Issues = "https://github.com/deltathedumb/pitbull/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pitbull"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
