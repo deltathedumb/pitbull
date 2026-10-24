@@ -1,9 +1,8 @@
 # pitbull
 
-`pitbull` lets ordinary, JavaScript-free HTML talk to Python while rendered in Chromium.
-It starts a private localhost server for your HTML, disables JavaScript in Chromium, and maps
-normal HTML form posts to Python functions. It is a useful starting point for small desktop tools
-where HTML/CSS provides layout and Python owns behavior.
+`pitbull` lets ordinary, JavaScript-free HTML talk to Python while rendered in PyQt5 WebEngine
+(Chromium). It maps normal relative links and GET form submissions to Python functions in-process:
+no localhost server, browser automation driver, JavaScript, or custom URL syntax in your HTML.
 
 ## Install
 
@@ -11,8 +10,7 @@ where HTML/CSS provides layout and Python owns behavior.
 pip install pitbull
 ```
 
-You also need a locally installed Chromium, Chrome, or Edge. Selenium Manager normally finds or
-downloads the matching driver automatically.
+PyQt5 WebEngine is installed automatically as a package dependency.
 
 ## Example
 
@@ -35,7 +33,7 @@ app.run()
 ```html
 <!doctype html>
 <title>Hello</title>
-<form action="/__pybridge__/events/greet" method="post">
+<form action="/greet" method="get">
   <label>Name <input name="name" required></label>
   <button>Greet</button>
 </form>
@@ -44,9 +42,16 @@ app.run()
 
 ## Security model
 
-The bridge listens only on `127.0.0.1`, chooses an ephemeral port, and creates a random token.
-Every bridge request must supply that token, which is injected into served bridge forms. Do not
-expose this server to a network or put untrusted input directly into an HTML template.
+Pitbull has no listening socket. It creates an internal renderer-only URL scheme and restricts
+static files to `web_root`. Templates escape values supplied to `app.render`; do not put untrusted
+input directly into raw HTML strings returned from a handler.
+
+## Plain HTML constraint
+
+Use ordinary relative links and GET forms. For example, `action="/greet"` calls
+`@app.event("greet")`, and `href="/settings.html"` opens a file in `web_root`. PyQt5 does not
+reliably expose POST form bodies through its navigation callback, so use `method="get"` for Python
+events. No `pitbull://` URL needs to appear in authored HTML.
 
 ## Scope
 
