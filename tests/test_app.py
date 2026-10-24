@@ -39,3 +39,9 @@ def test_redirect_requires_a_local_path():
     assert redirect("/next").status == 303
     with pytest.raises(ValueError):
         redirect("https://example.com")
+
+
+def test_javascript_is_disabled_by_default_and_can_be_toggled(app: App):
+    assert app.javascript_enabled is False
+    app.set_javascript_enabled(True, reload=False)
+    assert app.javascript_enabled is True

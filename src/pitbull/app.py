@@ -52,12 +52,20 @@ class App:
     WebEngine process; no localhost port or HTTP server is opened.
     """
 
-    def __init__(self, web_root: str | Path, *, start_page: str = "index.html", title: str | None = None):
+    def __init__(
+        self,
+        web_root: str | Path,
+        *,
+        start_page: str = "index.html",
+        title: str | None = None,
+        javascript_enabled: bool = False,
+    ):
         self.web_root = Path(web_root).resolve()
         if not self.web_root.is_dir():
             raise ValueError(f"web_root is not a directory: {self.web_root}")
         self.start_page = self._safe_path(start_page)
         self.title = title
+        self.javascript_enabled = bool(javascript_enabled)
         self._routes: dict[str, Handler] = {}
         self._view = None
         self._handler = None
@@ -87,6 +95,21 @@ class App:
             page = page.replace("{{ " + key + " }}", escape(str(value)))
         return Response(page, headers={"Content-Type": "text/html; charset=utf-8"})
 
+    def set_javascript_enabled(self, enabled: bool, *, reload: bool = True) -> None:
+        """Enable or disable JavaScript and optionally reload the displayed page.
+
+        JavaScript remains disabled by default. Reloading is enabled by default because Chromium
+        applies this setting reliably to newly loaded documents.
+        """
+        self.javascript_enabled = bool(enabled)
+        if self._view is None:
+            return
+        from PyQt5.QtWebEngineWidgets import QWebEngineSettings
+
+        self._view.settings().setAttribute(QWebEngineSettings.JavascriptEnabled, self.javascript_enabled)
+        if reload:
+            self._view.reload()
+
     def run(self) -> int:
         """Open the JavaScript-disabled PyQt5 WebEngine window and run its event loop."""
         _register_scheme()
@@ -103,7 +126,7 @@ class App:
         view = QWebEngineView()
         view.setWindowTitle(self.title or "Pitbull")
         view.resize(1024, 720)
-        view.settings().setAttribute(QWebEngineSettings.JavascriptEnabled, False)
+        view.settings().setAttribute(QWebEngineSettings.JavascriptEnabled, self.javascript_enabled)
 
         page = _BridgePage(self, view)
         view.setPage(page)

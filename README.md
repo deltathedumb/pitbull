@@ -28,6 +28,17 @@ def greet(request):
 app.run()
 ```
 
+## JavaScript toggle
+
+JavaScript is disabled by default. Opt in at startup with
+`App(Path("web"), javascript_enabled=True)`, or change it at runtime:
+
+```python
+app.set_javascript_enabled(True)  # Reloads the current page by default.
+```
+
+To preserve the JavaScript-free model, only enable it for pages you trust.
+
 `web/index.html` needs no JavaScript:
 
 ```html
